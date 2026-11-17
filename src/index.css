@@ -3,34 +3,30 @@
 @tailwind utilities;
 
 :root {
-  /* Default (Deep Space) */
-  --bg-primary: #050505;
+  /* Default (Dark / Deep Space) */
+  --bg-primary: #08080a;
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --dock-bg: rgba(20, 20, 20, 0.6);
-  --selection: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --dock-bg: rgba(12, 12, 14, 0.85);
+  --selection: rgba(52, 211, 153, 0.25);
 }
 
 [data-theme="gruvbox"] {
   /* Gruvbox Light (Retro Paper) */
   --bg-primary: #ebdbb2;
-  /* Standard Gruvbox BG (Darker beige) */
   --text-primary: #3c3836;
-  /* Softened Black */
   --text-secondary: rgba(60, 56, 54, 0.6);
   --glass-bg: rgba(60, 56, 54, 0.03);
-  /* Lighter glass */
   --glass-border: rgba(60, 56, 54, 0.08);
-  --dock-bg: rgba(213, 196, 161, 0.8);
-  --selection: rgba(214, 93, 14, 0.2);
-  /* Orange selection */
+  --dock-bg: rgba(213, 196, 161, 0.85);
+  --selection: rgba(214, 93, 14, 0.25);
 }
 
 @layer base {
   body {
-    @apply antialiased overflow-x-hidden transition-colors duration-500;
+    @apply antialiased overflow-x-hidden transition-colors duration-500 font-sans;
     background-color: var(--bg-primary);
     color: var(--text-primary);
   }
@@ -38,9 +34,13 @@
   ::selection {
     background-color: var(--selection);
   }
+
+  code, pre, kbd {
+    @apply font-mono;
+  }
 }
 
-/* Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }

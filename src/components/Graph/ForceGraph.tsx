@@ -28,9 +28,10 @@ export const ForceGraph = ({ data }: ForceGraphProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const { theme } = useTheme();
     const [hoveredNode, setHoveredNode] = useState<SkillNode | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const draggedNodeRef = useRef<SkillNode | null>(null);
     const simulationRef = useRef<d3.Simulation<SkillNode, SkillLink> | null>(null);
     const transformRef = useRef({ k: 1, x: 0, y: 0 });
-    const isDragging = useRef(false);
 
     // Helper ref for dimensions to avoid stale closures in draw
     const dimensionsRef = useRef({ width: 0, height: 0, dpr: 1 });
@@ -121,6 +122,21 @@ export const ForceGraph = ({ data }: ForceGraphProps) => {
 
     // Initial Setup (Moved after draw to satisfy dependencies)
     useEffect(() => {
+        // Helper to clamp node coordinates within 48px padding of canvas bounds
+        const clampPositions = () => {
+            const { width, height } = dimensionsRef.current;
+            if (width <= 0 || height <= 0) return;
+            const padding = 48;
+            data.nodes.forEach(node => {
+                if (typeof node.x === 'number') {
+                    node.x = Math.max(padding, Math.min(width - padding, node.x));
+                }
+                if (typeof node.y === 'number') {
+                    node.y = Math.max(padding, Math.min(height - padding, node.y));
+                }
+            });
+        };
+
         // Setup Simulation
         const simulation = d3.forceSimulation<SkillNode, SkillLink>(data.nodes)
             .force('link', d3.forceLink<SkillNode, SkillLink>(data.links).id(d => d.id).distance(80))
@@ -136,10 +152,14 @@ export const ForceGraph = ({ data }: ForceGraphProps) => {
         if (reducedMotion) {
             // Fast-forward simulation to end state
             simulation.tick(300);
+            clampPositions();
             draw();
             simulation.stop();
         } else {
-            simulation.on('tick', () => draw());
+            simulation.on('tick', () => {
+                clampPositions();
+                draw();
+            });
         }
 
         return () => {
@@ -207,11 +227,13 @@ export const ForceGraph = ({ data }: ForceGraphProps) => {
     const handleMouseMove = (e: React.MouseEvent) => {
         const { x, y } = getGraphCoordinates(e);
 
-        if (isDragging.current && simulationRef.current && hoveredNode) {
-            // Drag Logic
+        if (isDragging && simulationRef.current && draggedNodeRef.current) {
+            // Drag Logic clamped within padding
+            const { width, height } = dimensionsRef.current;
+            const padding = 48;
             simulationRef.current.alphaTarget(0.3).restart();
-            hoveredNode.fx = x;
-            hoveredNode.fy = y;
+            draggedNodeRef.current.fx = width > 0 ? Math.max(padding, Math.min(width - padding, x)) : x;
+            draggedNodeRef.current.fy = height > 0 ? Math.max(padding, Math.min(height - padding, y)) : y;
             return;
         }
 
@@ -237,16 +259,20 @@ export const ForceGraph = ({ data }: ForceGraphProps) => {
 
     const handleMouseDown = () => {
         if (hoveredNode) {
-            isDragging.current = true;
+            setIsDragging(true);
+            draggedNodeRef.current = hoveredNode;
         }
     };
 
     const handleMouseUp = () => {
-        if (isDragging.current && simulationRef.current && hoveredNode) {
-            isDragging.current = false;
-            hoveredNode.fx = null;
-            hoveredNode.fy = null;
+        if (isDragging && simulationRef.current && draggedNodeRef.current) {
+            setIsDragging(false);
+            draggedNodeRef.current.fx = null;
+            draggedNodeRef.current.fy = null;
+            draggedNodeRef.current = null;
             simulationRef.current.alphaTarget(0).restart();
+        } else if (isDragging) {
+            setIsDragging(false);
         }
     };
 
@@ -301,7 +327,7 @@ export const ForceGraph = ({ data }: ForceGraphProps) => {
                 />
 
                 {/* Legend / Info Overlay */}
-                {hoveredNode && !isDragging.current && (
+                {hoveredNode && !isDragging && (
                     <div
                         className="absolute bg-neutral-900/90 backdrop-blur-md p-4 rounded-xl border border-white/10 max-w-xs pointer-events-none transition-opacity duration-200 shadow-xl"
                         style={{

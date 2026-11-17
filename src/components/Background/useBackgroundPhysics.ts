@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 
 // Antigravity Configuration
 const CONFIG = {
@@ -164,6 +164,8 @@ export const useBackgroundPhysics = (canvasRef: React.RefObject<HTMLCanvasElemen
 
     }, [theme]);
 
+    const animateRef = useRef<() => void>(() => {});
+
     const animate = useCallback(() => {
         if (!canvasRef.current) return;
         const ctx = canvasRef.current.getContext('2d');
@@ -177,8 +179,12 @@ export const useBackgroundPhysics = (canvasRef: React.RefObject<HTMLCanvasElemen
         }
         draw(ctx, dimensionsRef.current.w, dimensionsRef.current.h);
 
-        animationFrameRef.current = requestAnimationFrame(animate);
+        animationFrameRef.current = requestAnimationFrame(() => animateRef.current());
     }, [updatePhysics, draw, canvasRef]);
+
+    useEffect(() => {
+        animateRef.current = animate;
+    }, [animate]);
 
     const handleResize = useCallback(() => {
         if (!canvasRef.current) return;
@@ -196,7 +202,7 @@ export const useBackgroundPhysics = (canvasRef: React.RefObject<HTMLCanvasElemen
 
         dimensionsRef.current = { w: innerWidth, h: innerHeight };
         initPoints(innerWidth, innerHeight);
-    }, [initPoints]);
+    }, [initPoints, canvasRef]);
 
     const handleMouseMove = useCallback((e: MouseEvent) => {
         mouseRef.current = { x: e.clientX, y: e.clientY };
