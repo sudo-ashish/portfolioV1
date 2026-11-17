@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { Home, User, Briefcase, Mail } from "lucide-react";
+import { Home, User, Briefcase, Mail, Network } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
     { id: "hero", icon: Home, label: "Home" },
     { id: "work", icon: Briefcase, label: "Work" },
+    { id: "skills", icon: Network, label: "Graph" },
     { id: "about", icon: User, label: "About" },
     { id: "contact", icon: Mail, label: "Contact" },
 ];

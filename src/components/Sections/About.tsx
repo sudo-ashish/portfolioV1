@@ -8,7 +8,7 @@ export const About = () => {
             <div className="flex flex-col sm:flex-row sm:items-baseline justify-between pb-6 mb-10 border-b border-white/[0.07] min-w-0">
                 <div>
                     <span className="text-xs font-mono tracking-widest text-amber-400/90 font-medium uppercase">
-                        02 // ENVIRONMENT & SPECS
+                        03 // ENVIRONMENT & SPECS
                     </span>
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-zinc-100 tracking-tight mt-2">
                         System Architecture.
