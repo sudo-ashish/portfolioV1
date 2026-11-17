@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ExternalLink, Copy, Check, Terminal } from 'lucide-react';
 import { ASCII_ART } from '../../data/asciiArt';
+import { fastfetchConfig, type FastfetchItem } from '../../data/fastfetchData';
 
 interface GithubStats {
     repos: number | string;
@@ -9,14 +10,6 @@ interface GithubStats {
     following: number | string;
     loading: boolean;
 }
-
-const DEFAULT_STATS: GithubStats = {
-    repos: 18,
-    stars: 25,
-    followers: 14,
-    following: 12,
-    loading: false,
-};
 
 const COLOR_PALETTE = [
     { name: 'Black', bg: 'bg-[#1e1e24]' },
@@ -47,10 +40,10 @@ interface DottedRowProps {
 
 const DottedRow: React.FC<DottedRowProps> = ({ label, children }) => {
     return (
-        <div className="flex items-baseline gap-2 py-0.5 hover:bg-white/[0.02] rounded px-1 -mx-1 transition-colors group">
+        <div className="flex items-baseline gap-2 py-[1.5px] hover:bg-white/[0.02] rounded px-1 -mx-1 transition-colors group">
             {/* Left Key + Dotted Leader Container with strict fixed width to guarantee perfect column alignment */}
-            <div className="w-[185px] sm:w-[260px] shrink-0 flex items-baseline overflow-hidden select-none">
-                <span className="font-bold text-[#2ee59d] shrink-0 font-mono">
+            <div className="w-[170px] sm:w-[230px] md:w-[240px] shrink-0 flex items-baseline overflow-hidden select-none">
+                <span className="font-bold text-[#2ee59d] shrink-0 font-mono text-xs sm:text-[13px]">
                     {label}
                 </span>
                 <span
@@ -62,7 +55,7 @@ const DottedRow: React.FC<DottedRowProps> = ({ label, children }) => {
             </div>
 
             {/* Right Value Container */}
-            <div className="flex-1 min-w-0 break-words text-[#e4e4e7] font-mono leading-relaxed">
+            <div className="flex-1 min-w-0 break-words text-[#e4e4e7] font-mono text-xs sm:text-[13px] leading-snug">
                 {children}
             </div>
         </div>
@@ -75,11 +68,11 @@ interface SectionDividerProps {
 
 const SectionDivider: React.FC<SectionDividerProps> = ({ title }) => {
     return (
-        <div className="flex items-center gap-2 overflow-hidden pt-3 pb-1 select-none" aria-hidden="true">
-            <span className="font-bold text-[#2ee59d] shrink-0 whitespace-nowrap text-xs sm:text-sm font-mono">
+        <div className="flex items-center gap-2 overflow-hidden pt-1.5 pb-0.5 select-none" aria-hidden="true">
+            <span className="font-bold text-[#2ee59d] shrink-0 whitespace-nowrap text-xs sm:text-[13px] font-mono">
                 - {title}
             </span>
-            <span className="text-[rgba(46,229,157,0.25)] flex-1 overflow-hidden whitespace-nowrap font-mono tracking-wider">
+            <span className="text-[rgba(46,229,157,0.25)] flex-1 overflow-hidden whitespace-nowrap font-mono tracking-wider text-xs">
                 ------------------------------------------------------------------------------------------------------------------------
             </span>
         </div>
@@ -88,30 +81,35 @@ const SectionDivider: React.FC<SectionDividerProps> = ({ title }) => {
 
 export const FastfetchTerminal: React.FC = () => {
     const [copied, setCopied] = useState(false);
-    const [stats, setStats] = useState<GithubStats>(DEFAULT_STATS);
+    const [stats, setStats] = useState<GithubStats>({
+        repos: fastfetchConfig.githubStats.fallback.repos,
+        stars: fastfetchConfig.githubStats.fallback.stars,
+        followers: fastfetchConfig.githubStats.fallback.followers,
+        following: fastfetchConfig.githubStats.fallback.following,
+        loading: false,
+    });
 
-    // Fetch live GitHub stats on mount
+    // Fetch live GitHub stats on mount from username in fastfetchData
     useEffect(() => {
         let isMounted = true;
         const controller = new AbortController();
+        const username = fastfetchConfig.githubStats.username;
 
         const fetchGithubStats = async () => {
             try {
                 const [userRes, reposRes] = await Promise.all([
-                    fetch('https://api.github.com/users/sudo-ashish', {
+                    fetch(`https://api.github.com/users/${username}`, {
                         signal: controller.signal,
                     }),
-                    fetch('https://api.github.com/users/sudo-ashish/repos?per_page=100', {
+                    fetch(`https://api.github.com/users/${username}/repos?per_page=100`, {
                         signal: controller.signal,
                     }),
                 ]);
 
-                if (!userRes.ok) {
-                    return;
-                }
+                if (!userRes.ok) return;
 
                 const userData = await userRes.json();
-                let totalStars = DEFAULT_STATS.stars;
+                let totalStars = fastfetchConfig.githubStats.fallback.stars;
 
                 if (reposRes.ok) {
                     const reposData = await reposRes.json();
@@ -126,10 +124,10 @@ export const FastfetchTerminal: React.FC = () => {
 
                 if (isMounted) {
                     setStats({
-                        repos: userData.public_repos ?? DEFAULT_STATS.repos,
+                        repos: userData.public_repos ?? fastfetchConfig.githubStats.fallback.repos,
                         stars: totalStars,
-                        followers: userData.followers ?? DEFAULT_STATS.followers,
-                        following: userData.following ?? DEFAULT_STATS.following,
+                        followers: userData.followers ?? fastfetchConfig.githubStats.fallback.followers,
+                        following: userData.following ?? fastfetchConfig.githubStats.fallback.following,
                         loading: false,
                     });
                 }
@@ -148,34 +146,21 @@ export const FastfetchTerminal: React.FC = () => {
 
     const handleCopy = () => {
         const specsText = [
-            'sudo-ashish@github',
+            fastfetchConfig.userHost,
             '------------------------',
-            'OS: .................... Arch Linux / Debian (Wayland)',
-            'WM / Shell: ............ Hyprland · Quickshell · Zsh',
-            'Host: .................. Systems & Full-Stack Developer',
-            'Kernel: ................ Unix Modularity & Config-Driven Workflow',
-            'Terminal: .............. Kitty / Ghostty',
-            'Editor: ................ Neovim (Lua), Antigravity',
+            ...fastfetchConfig.systemInfo.map((i: FastfetchItem) => `${i.key.padEnd(24, '.')} ${i.value}`),
             '',
-            'Languages.Core: ........ Python, TypeScript, JavaScript, C++, Bash',
-            'Languages.UI: .......... QML, HTML, CSS, Tailwind',
-            'Stack.Systems: ......... systemd, Filesystem Hierarchy, CLI Piping',
-            'Stack.Domain: .......... Wayland Compositors, Full-Stack APIs, ML',
+            ...fastfetchConfig.techStack.map((i: FastfetchItem) => `${i.key.padEnd(24, '.')} ${i.value}`),
             '',
-            '- Approach & Mindset -----------------------------------',
-            'Environment: ........... OS tuned as a transparent tool, not a black box',
-            'Ownership: ............. Package management, config tuning, root-cause fixes',
-            'Competencies: .......... System Config, Workflow Optimization, Automation',
-            'Philosophy: ............ "Understand how tools connect; build stable systems from the ground up."',
+            `- ${fastfetchConfig.approach.title} --------------------------------`,
+            ...fastfetchConfig.approach.items.map((i: FastfetchItem) => `${i.key.padEnd(24, '.')} ${i.value}`),
             '',
-            '- Contact ----------------------------------------------',
-            'GitHub: ................ https://github.com/sudo-ashish',
-            'Email: ................. contact@sudo-ashish.dev',
-            'Location: .............. India',
+            `- ${fastfetchConfig.contact.title} ---------------------------------`,
+            ...fastfetchConfig.contact.items.map((i: FastfetchItem) => `${i.key.padEnd(24, '.')} ${i.value}`),
             '',
-            '- GitHub Stats -----------------------------------------',
-            `Repos: ................. ${stats.repos} | Stars: ${stats.stars}`,
-            `Followers: ............. ${stats.followers} | Following: ${stats.following}`,
+            `- ${fastfetchConfig.githubStats.title} ------------------------------`,
+            `${'Repos:'.padEnd(24, '.')} ${stats.repos} | Stars: ${stats.stars}`,
+            `${'Followers:'.padEnd(24, '.')} ${stats.followers} | Following: ${stats.following}`,
         ].join('\n');
 
         navigator.clipboard.writeText(specsText);
@@ -185,7 +170,7 @@ export const FastfetchTerminal: React.FC = () => {
 
     return (
         <div
-            className="w-full rounded-xl p-5 sm:p-7 md:p-8 font-mono text-xs sm:text-sm md:text-[14px] leading-relaxed shadow-[0_16px_36px_-12px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(46,229,157,0.12)] relative overflow-hidden transition-all duration-300"
+            className="w-full rounded-xl p-3.5 sm:p-5 md:p-6 font-mono text-xs sm:text-[13px] leading-snug shadow-[0_16px_36px_-12px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(46,229,157,0.12)] relative overflow-hidden transition-all duration-300"
             style={{
                 backgroundColor: '#060707',
                 backgroundImage: 'radial-gradient(circle at 50% 45%, rgba(46, 229, 157, 0.055), transparent 70%)',
@@ -193,150 +178,118 @@ export const FastfetchTerminal: React.FC = () => {
             }}
         >
             {/* Terminal Window Header / Chrome */}
-            <div className="flex items-center justify-between pb-4 mb-5 border-b border-[rgba(46,229,157,0.14)] select-none">
-                {/* Wayland / Window Traffic Lights */}
+            <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-[rgba(46,229,157,0.14)] select-none">
+                {/* Traffic Lights & Session info */}
                 <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-[#ff5f56]/90 transition-transform duration-200 hover:scale-125" />
-                    <span className="w-3 h-3 rounded-full bg-[#ffbd2e]/90 transition-transform duration-200 hover:scale-125" />
-                    <span className="w-3 h-3 rounded-full bg-[#2ee59d]/90 transition-transform duration-200 hover:scale-125" />
-                    <span className="ml-3 hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-400 font-mono">
-                        <Terminal size={13} className="text-[#2ee59d]" />
-                        sudo-ashish : wayland-session [hyprland]
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]/90 transition-transform duration-200 hover:scale-125" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]/90 transition-transform duration-200 hover:scale-125" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#2ee59d]/90 transition-transform duration-200 hover:scale-125" />
+                    <span className="ml-2.5 hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-400 font-mono">
+                        <Terminal size={12} className="text-[#2ee59d]" />
+                        {fastfetchConfig.windowTitle}
                     </span>
                 </div>
 
                 {/* Right-Side Actions */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                     <button
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#2ee59d]/[0.08] hover:bg-[#2ee59d]/[0.15] border border-[#2ee59d]/20 text-xs text-zinc-300 hover:text-white transition-all cursor-pointer"
+                        className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#2ee59d]/[0.08] hover:bg-[#2ee59d]/[0.15] border border-[#2ee59d]/20 text-[11px] text-zinc-300 hover:text-white transition-all cursor-pointer"
                         title="Copy fastfetch specs"
                         aria-label="Copy fastfetch specs"
                     >
                         {copied ? (
                             <>
-                                <Check size={12} className="text-[#2ee59d]" />
+                                <Check size={11} className="text-[#2ee59d]" />
                                 <span className="text-[#2ee59d] font-semibold">Copied!</span>
                             </>
                         ) : (
                             <>
-                                <Copy size={12} className="text-zinc-400" />
+                                <Copy size={11} className="text-zinc-400" />
                                 <span>Copy Specs</span>
                             </>
                         )}
                     </button>
-                    <span className="text-xs text-zinc-500 hidden md:inline font-mono">
+                    <span className="text-[11px] text-zinc-500 hidden md:inline font-mono">
                         UTF-8
                     </span>
                 </div>
             </div>
 
             {/* Prompt Line */}
-            <div className="flex items-center gap-2 mb-6 text-xs sm:text-sm text-zinc-300 select-none">
+            <div className="flex items-center gap-2 mb-3 text-xs sm:text-[13px] text-zinc-300 select-none">
                 <span className="text-[#2ee59d] font-bold">❯</span>
-                <span className="text-zinc-200 font-medium">fastfetch --profile sudo-ashish</span>
-                <span className="inline-block w-2 h-4 bg-[#2ee59d] animate-pulse ml-0.5" />
+                <span className="text-zinc-200 font-medium">{fastfetchConfig.promptCommand}</span>
+                <span className="inline-block w-1.5 h-3.5 bg-[#2ee59d] animate-pulse ml-0.5" />
             </div>
 
-            {/* Two-Column Fastfetch Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8 xl:gap-12 items-start min-w-0">
+            {/* Two-Column Fastfetch Layout - Side-by-side on md and up */}
+            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-5 lg:gap-8 items-start min-w-0">
                 {/* Left Column: Monospace ASCII Art Logo */}
-                <div className="flex justify-center lg:justify-start overflow-x-auto min-w-0 py-2 lg:sticky lg:top-6 select-none">
-                    <pre className="text-[#2ee59d]/85 leading-tight select-none font-mono text-[10px] sm:text-xs md:text-[13px] tracking-tighter sm:tracking-normal drop-shadow-[0_0_16px_rgba(46,229,157,0.22)]">
+                <div className="flex justify-center md:justify-start overflow-x-auto min-w-0 py-1 md:sticky md:top-4 select-none">
+                    <pre className="text-[#2ee59d]/85 leading-[8.5px] sm:leading-[10px] md:leading-[11.5px] select-none font-mono text-[8px] sm:text-[9.5px] md:text-[11px] tracking-tighter sm:tracking-normal drop-shadow-[0_0_12px_rgba(46,229,157,0.2)]">
                         {ASCII_ART}
                     </pre>
                 </div>
 
                 {/* Right Column: Fastfetch Specs Table */}
-                <div className="space-y-1 min-w-0">
+                <div className="space-y-0.5 min-w-0">
                     {/* Header: User & Host */}
-                    <div className="mb-4 select-none">
-                        <div className="text-base sm:text-lg font-bold tracking-wide text-[#2ee59d]">
-                            sudo-ashish@github
+                    <div className="mb-2 select-none">
+                        <div className="text-sm sm:text-base font-bold tracking-wide text-[#2ee59d]">
+                            {fastfetchConfig.userHost}
                         </div>
-                        <div className="text-[#2ee59d]/30 text-xs sm:text-sm font-mono overflow-hidden whitespace-nowrap">
+                        <div className="text-[#2ee59d]/30 text-xs sm:text-[13px] font-mono overflow-hidden whitespace-nowrap">
                             ------------------------
                         </div>
                     </div>
 
                     {/* Block 1: System & Developer Environment */}
-                    <DottedRow label="OS:">
-                        Arch Linux / Debian (Wayland)
-                    </DottedRow>
-                    <DottedRow label="WM / Shell:">
-                        Hyprland · Quickshell · Zsh
-                    </DottedRow>
-                    <DottedRow label="Host:">
-                        Systems & Full-Stack Developer
-                    </DottedRow>
-                    <DottedRow label="Kernel:">
-                        Unix Modularity & Config-Driven Workflow
-                    </DottedRow>
-                    <DottedRow label="Terminal:">
-                        Kitty / Ghostty
-                    </DottedRow>
-                    <DottedRow label="Editor:">
-                        Neovim (Lua), Antigravity
-                    </DottedRow>
+                    {fastfetchConfig.systemInfo.map((item) => (
+                        <DottedRow key={item.key} label={item.key}>
+                            {item.value}
+                        </DottedRow>
+                    ))}
 
-                    {/* Block 2: Languages & Technical Stack (Dot-Notation Keys) */}
-                    <div className="pt-2">
-                        <DottedRow label="Languages.Core:">
-                            Python, TypeScript, JavaScript, C++, Bash
-                        </DottedRow>
-                        <DottedRow label="Languages.UI:">
-                            QML, HTML, CSS, Tailwind
-                        </DottedRow>
-                        <DottedRow label="Stack.Systems:">
-                            systemd, Filesystem Hierarchy, CLI Piping
-                        </DottedRow>
-                        <DottedRow label="Stack.Domain:">
-                            Wayland Compositors, Full-Stack APIs, ML
-                        </DottedRow>
+                    {/* Block 2: Languages & Technical Stack */}
+                    <div className="pt-1">
+                        {fastfetchConfig.techStack.map((item) => (
+                            <DottedRow key={item.key} label={item.key}>
+                                {item.value}
+                            </DottedRow>
+                        ))}
                     </div>
 
                     {/* Section: Approach & Mindset */}
-                    <SectionDivider title="Approach & Mindset" />
-                    <DottedRow label="Environment:">
-                        OS tuned as a transparent tool, not a black box
-                    </DottedRow>
-                    <DottedRow label="Ownership:">
-                        Package management, config tuning, root-cause fixes
-                    </DottedRow>
-                    <DottedRow label="Competencies:">
-                        System Config, Workflow Optimization, Automation
-                    </DottedRow>
-                    <DottedRow label="Philosophy:">
-                        "Understand how tools connect; build stable systems from the ground up."
-                    </DottedRow>
+                    <SectionDivider title={fastfetchConfig.approach.title} />
+                    {fastfetchConfig.approach.items.map((item) => (
+                        <DottedRow key={item.key} label={item.key}>
+                            {item.value}
+                        </DottedRow>
+                    ))}
 
                     {/* Section: Contact */}
-                    <SectionDivider title="Contact" />
-                    <DottedRow label="GitHub:">
-                        <a
-                            href="https://github.com/sudo-ashish"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[#e4e4e7] hover:text-[#2ee59d] hover:underline underline-offset-4 transition-colors inline-flex items-center gap-1.5"
-                        >
-                            <span>https://github.com/sudo-ashish</span>
-                            <ExternalLink size={12} className="inline opacity-70" />
-                        </a>
-                    </DottedRow>
-                    <DottedRow label="Email:">
-                        <a
-                            href="mailto:contact@sudo-ashish.dev"
-                            className="text-[#e4e4e7] hover:text-[#2ee59d] hover:underline underline-offset-4 transition-colors"
-                        >
-                            contact@sudo-ashish.dev
-                        </a>
-                    </DottedRow>
-                    <DottedRow label="Location:">
-                        India
-                    </DottedRow>
+                    <SectionDivider title={fastfetchConfig.contact.title} />
+                    {fastfetchConfig.contact.items.map((item) => (
+                        <DottedRow key={item.key} label={item.key}>
+                            {item.href ? (
+                                <a
+                                    href={item.href}
+                                    target={item.isExternal ? '_blank' : undefined}
+                                    rel={item.isExternal ? 'noopener noreferrer' : undefined}
+                                    className="text-[#e4e4e7] hover:text-[#2ee59d] hover:underline underline-offset-4 transition-colors inline-flex items-center gap-1"
+                                >
+                                    <span>{item.value}</span>
+                                    {item.isExternal && <ExternalLink size={11} className="inline opacity-70" />}
+                                </a>
+                            ) : (
+                                item.value
+                            )}
+                        </DottedRow>
+                    ))}
 
                     {/* Section: GitHub Stats */}
-                    <SectionDivider title="GitHub Stats" />
+                    <SectionDivider title={fastfetchConfig.githubStats.title} />
                     <DottedRow label="Repos:">
                         <span>{stats.repos}</span>
                         <span className="text-[#2ee59d]/40 mx-2">|</span>
@@ -350,33 +303,28 @@ export const FastfetchTerminal: React.FC = () => {
                         <span className="ml-1.5">{stats.following}</span>
                     </DottedRow>
 
-                    {/* Classic 8-Block Terminal ANSI Palette */}
-                    <div className="pt-5 border-t border-[rgba(46,229,157,0.12)] mt-5">
-                        <div className="text-[11px] text-zinc-500 mb-2 select-none uppercase tracking-wider font-mono">
-                            Terminal Palette
+                    {/* Compact Single-Line ANSI Palette */}
+                    <div className="pt-2 mt-2 border-t border-[rgba(46,229,157,0.12)] flex items-center justify-between select-none">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                            {COLOR_PALETTE.map((color) => (
+                                <div
+                                    key={color.name}
+                                    className={`w-3.5 sm:w-4 h-2 rounded-[2px] ${color.bg} shadow-sm transition-transform hover:scale-125 cursor-help`}
+                                    title={color.name}
+                                />
+                            ))}
+                            <span className="w-1" />
+                            {BRIGHT_COLOR_PALETTE.map((color) => (
+                                <div
+                                    key={color.name}
+                                    className={`w-3.5 sm:w-4 h-2 rounded-[2px] ${color.bg} shadow-sm transition-transform hover:scale-125 cursor-help`}
+                                    title={color.name}
+                                />
+                            ))}
                         </div>
-                        <div className="space-y-1.5">
-                            {/* Standard ANSI Palette */}
-                            <div className="flex flex-wrap gap-2">
-                                {COLOR_PALETTE.map((color) => (
-                                    <div
-                                        key={color.name}
-                                        className={`w-5 h-3 rounded-sm ${color.bg} shadow-sm transition-transform hover:scale-125 cursor-help`}
-                                        title={color.name}
-                                    />
-                                ))}
-                            </div>
-                            {/* Bright ANSI Palette */}
-                            <div className="flex flex-wrap gap-2">
-                                {BRIGHT_COLOR_PALETTE.map((color) => (
-                                    <div
-                                        key={color.name}
-                                        className={`w-5 h-3 rounded-sm ${color.bg} shadow-sm transition-transform hover:scale-125 cursor-help`}
-                                        title={color.name}
-                                    />
-                                ))}
-                            </div>
-                        </div>
+                        <span className="text-[10px] text-zinc-500 font-mono hidden sm:inline">
+                            fastfetch v2.30
+                        </span>
                     </div>
                 </div>
             </div>
