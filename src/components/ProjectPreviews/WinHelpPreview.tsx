@@ -1,76 +1,154 @@
-import React from 'react';
-import { CheckCircle2, Zap, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, RotateCcw, CheckCircle2 } from 'lucide-react';
+
+type TabId = 'net-check' | 'services' | 'cleanup';
+
+interface DiagnosticLog {
+    command: string;
+    lines: { tag: string; text: string; status: 'info' | 'pass' | 'warn' | 'active' | 'done' }[];
+    exitCode: number;
+}
+
+const DIAGNOSTICS: Record<TabId, DiagnosticLog> = {
+    'net-check': {
+        command: 'winhelp net-check --interface wlan0',
+        lines: [
+            { tag: 'INFO', text: 'Probing interface: wlan0 (MTU 1500)', status: 'info' },
+            { tag: 'PASS', text: 'Link detected: 802.11ax (signal: -52 dBm)', status: 'pass' },
+            { tag: 'PASS', text: 'Gateway ping 192.168.1.1: 1.4ms', status: 'pass' },
+            { tag: 'PASS', text: 'DNS resolution (1.1.1.1): resolved in 12ms', status: 'pass' },
+            { tag: 'DONE', text: 'Network route verified. 0 packet loss.', status: 'done' },
+        ],
+        exitCode: 0,
+    },
+    'services': {
+        command: 'winhelp services --status',
+        lines: [
+            { tag: 'INIT', text: 'Querying systemd user & system units...', status: 'info' },
+            { tag: 'ACTIVE', text: 'pipewire.service (audio routing nominal)', status: 'active' },
+            { tag: 'ACTIVE', text: 'hyprland-ipc.socket (listener active)', status: 'active' },
+            { tag: 'LOADED', text: 'seatd.service (seat management ok)', status: 'pass' },
+            { tag: 'IDLE', text: 'bluetooth.service (power-save mode)', status: 'warn' },
+            { tag: 'DONE', text: '3/4 units active, 0 failed units.', status: 'done' },
+        ],
+        exitCode: 0,
+    },
+    'cleanup': {
+        command: 'winhelp cleanup --dry-run',
+        lines: [
+            { tag: 'SCAN', text: 'Inspecting local caches and package journal...', status: 'info' },
+            { tag: 'CACHE', text: '~/.cache/yay (1.4 GB reclaimable)', status: 'warn' },
+            { tag: 'LOGS', text: 'journalctl logs > 50M (180 MB vacuum target)', status: 'warn' },
+            { tag: 'CHECK', text: 'Orphaned pacman packages: 0 detected', status: 'pass' },
+            { tag: 'READY', text: "Run 'winhelp cleanup --apply' to purge 1.58 GB.", status: 'done' },
+        ],
+        exitCode: 0,
+    },
+};
 
 export const WinHelpPreview: React.FC = () => {
+    const [activeTab, setActiveTab] = useState<TabId>('net-check');
+    const [running, setRunning] = useState(false);
+
+    const log = DIAGNOSTICS[activeTab];
+
+    const handleSwitchTab = (tab: TabId) => {
+        setActiveTab(tab);
+        setRunning(true);
+        setTimeout(() => setRunning(false), 200);
+    };
+
+    const handleRerun = () => {
+        setRunning(true);
+        setTimeout(() => setRunning(false), 300);
+    };
+
+    const getTagClass = (status: string) => {
+        switch (status) {
+            case 'pass':
+            case 'done':
+                return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+            case 'active':
+                return 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20';
+            case 'warn':
+                return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+            default:
+                return 'text-zinc-400 bg-white/[0.04] border-white/10';
+        }
+    };
+
     return (
-        <div className="relative h-[210px] w-full overflow-hidden rounded-xl bg-[#08080c] border border-white/[0.08] p-3.5 sm:p-4 font-mono select-none flex flex-col justify-between">
-            {/* Scanline Effect Overlay */}
-            <div
-                className="pointer-events-none absolute inset-0 z-20 opacity-30"
-                style={{
-                    backgroundImage: 'repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4) 1px, transparent 1px, transparent 3px)',
-                }}
-            />
-
-            {/* Ambient Background Gradient */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-amber-950/15 via-transparent to-transparent pointer-events-none" />
-
-            {/* Top Command Prompt Bar */}
-            <div className="relative z-10 flex items-center justify-between pb-2 border-b border-white/10 text-xs">
-                <div className="flex items-center gap-2">
-                    <span className="text-emerald-400 font-bold">❯</span>
-                    <span className="text-white font-medium">winhelp --diagnose --auto-fix</span>
+        <div className="relative w-full overflow-hidden rounded-lg bg-[#09090c] border border-white/[0.08] p-3.5 sm:p-5 font-mono select-none flex flex-col justify-between gap-3">
+            {/* Top Bar: Clickable Command Tabs */}
+            <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
+                <div className="flex items-center gap-1.5">
+                    {(['net-check', 'services', 'cleanup'] as TabId[]).map((tab) => {
+                        const isActive = activeTab === tab;
+                        return (
+                            <button
+                                key={tab}
+                                onClick={() => handleSwitchTab(tab)}
+                                className={`px-2 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer ${
+                                    isActive
+                                        ? 'bg-amber-400/15 border border-amber-400/50 text-amber-200'
+                                        : 'bg-white/[0.03] border border-transparent text-zinc-500 hover:text-zinc-300'
+                                }`}
+                            >
+                                {tab}
+                            </button>
+                        );
+                    })}
                 </div>
-                <span className="text-[10px] text-white/40 hidden sm:inline">
-                    v2.4.0
-                </span>
+
+                <button
+                    onClick={handleRerun}
+                    className="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+                    title="Re-run active check"
+                >
+                    <RotateCcw size={10} className={running ? 'animate-spin text-amber-400' : ''} />
+                    <span className="hidden sm:inline">Rerun</span>
+                </button>
             </div>
 
-            {/* Live Diagnostic Checks List */}
-            <div className="relative z-10 space-y-2 my-auto text-xs">
-                {/* Check 1 */}
-                <div className="flex items-center justify-between px-2.5 py-1 rounded bg-black/40 border border-white/5">
-                    <div className="flex items-center gap-2">
-                        <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
-                        <span className="text-white/80">Network Stack</span>
-                    </div>
-                    <span className="text-[11px] text-emerald-400 font-mono">
-                        [✓] Online (0ms)
-                    </span>
+            {/* Terminal Window with realistic output */}
+            <div className="rounded-md bg-[#070709] border border-white/[0.06] p-2.5 text-[11px] space-y-1.5">
+                {/* Prompt Line */}
+                <div className="flex items-center gap-2 text-zinc-300 pb-1.5 border-b border-white/[0.04]">
+                    <span className="text-amber-400 font-bold select-none">❯</span>
+                    <span className="text-zinc-200 font-medium">{log.command}</span>
                 </div>
 
-                {/* Check 2 */}
-                <div className="flex items-center justify-between px-2.5 py-1 rounded bg-black/40 border border-white/5">
-                    <div className="flex items-center gap-2">
-                        <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
-                        <span className="text-white/80">Service Daemon</span>
-                    </div>
-                    <span className="text-[11px] text-emerald-400 font-mono">
-                        [✓] Active (PID 2049)
-                    </span>
-                </div>
-
-                {/* Check 3 */}
-                <div className="flex items-center justify-between px-2.5 py-1 rounded bg-black/40 border border-amber-500/20 group-hover:border-amber-400/40 transition-colors">
-                    <div className="flex items-center gap-2">
-                        <Zap size={13} className="text-amber-400 shrink-0 animate-pulse" />
-                        <span className="text-white/80">Optimizing Config</span>
-                    </div>
-                    <span className="text-[11px] text-amber-300 font-mono">
-                        [⚡] 14 rules applied
-                    </span>
+                {/* Simulated Step-by-Step Checks */}
+                <div className="space-y-1 pt-1 min-h-[96px]">
+                    {running ? (
+                        <div className="flex items-center gap-2 text-zinc-500 text-[10px] py-4">
+                            <Play size={10} className="animate-spin text-amber-400" />
+                            <span>Executing diagnostic probe...</span>
+                        </div>
+                    ) : (
+                        log.lines.map((line, i) => (
+                            <div key={i} className="flex items-baseline gap-2 text-[10px] sm:text-[11px]">
+                                <span
+                                    className={`px-1.5 py-0.2 rounded border text-[9px] font-bold shrink-0 ${getTagClass(
+                                        line.status
+                                    )}`}
+                                >
+                                    {line.tag}
+                                </span>
+                                <span className="text-zinc-300 truncate">{line.text}</span>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 
             {/* Bottom Status Banner */}
-            <div className="relative z-10 flex items-center justify-between px-2.5 py-1 rounded bg-emerald-950/30 border border-emerald-500/20 text-[10px] text-emerald-400">
-                <div className="flex items-center gap-1.5">
-                    <ShieldCheck size={12} className="text-emerald-400" />
-                    <span className="font-semibold uppercase tracking-wider">Status: Healthy</span>
+            <div className="flex items-center justify-between text-[10px] text-zinc-500 pt-1">
+                <div className="flex items-center gap-1.5 text-zinc-400">
+                    <CheckCircle2 size={11} className="text-emerald-400" />
+                    <span>status: exit code 0 (success)</span>
                 </div>
-                <span className="text-white/50 font-mono">
-                    Diagnostic pass: 100%
-                </span>
+                <span className="text-zinc-600 font-sans">Click tabs to test diagnostics</span>
             </div>
         </div>
     );

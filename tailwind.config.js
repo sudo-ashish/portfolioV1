@@ -11,8 +11,19 @@ export default {
         mono: ['"JetBrains Mono"', '"Fira Code"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       colors: {
-        background: '#08080a',
-        surface: '#0c0c0e',
+        obsidian: '#09090b',
+        surface: '#0e0e11',
+        amber: {
+          400: '#e5a93b',
+          500: '#d99726',
+        },
+        cyan: {
+          400: '#7dd3fc',
+          500: '#38bdf8',
+        },
+      },
+      boxShadow: {
+        machined: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 16px 36px -12px rgba(0, 0, 0, 0.6)',
       },
     },
   },

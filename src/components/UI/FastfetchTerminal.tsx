@@ -14,19 +14,19 @@ interface SpecItem {
 const SYSTEM_SPECS: SpecItem[] = [
     { label: 'OS', value: 'Arch Linux x86_64', highlight: 'text-cyan-400' },
     { label: 'Kernel', value: 'Linux (Tuned / Modular Workflow)' },
-    { label: 'WM', value: 'Hyprland (Wayland)', highlight: 'text-emerald-400' },
+    { label: 'WM', value: 'Hyprland (Wayland)', highlight: 'text-amber-400' },
     { label: 'Shell', value: 'Quickshell (QML) / Zsh' },
-    { label: 'DE / Suite', value: 'QDeck (Custom Desktop Shell)', highlight: 'text-purple-400' },
+    { label: 'DE / Suite', value: 'QDeck (Custom Desktop Shell)', highlight: 'text-zinc-200' },
     { label: 'Terminal', value: 'Kitty / Ghostty' },
-    { label: 'Editor', value: 'Neovim (Lua)', highlight: 'text-green-400' },
-    { label: 'Languages', value: 'QML, Python, TypeScript, C++, Bash', highlight: 'text-amber-300' },
+    { label: 'Editor', value: 'Neovim (Lua)', highlight: 'text-amber-300' },
+    { label: 'Languages', value: 'QML, Python, TypeScript, C++, Bash', highlight: 'text-cyan-300' },
     { label: 'Focus', value: 'System Architecture, Wayland UI, ML & Automation' },
     {
         label: 'GitHub',
         value: 'https://github.com/sudo-ashish',
         isLink: true,
         href: 'https://github.com/sudo-ashish',
-        highlight: 'text-emerald-400 hover:text-emerald-300 underline underline-offset-4',
+        highlight: 'text-amber-400 hover:text-amber-300 underline underline-offset-4',
     },
 ];
 
@@ -65,19 +65,19 @@ export const FastfetchTerminal: React.FC = () => {
 
     return (
         <SpotlightCard
-            spotlightColor="rgba(52, 211, 153, 0.08)"
-            borderColor="rgba(52, 211, 153, 0.3)"
-            className="w-full bg-[#0c0c0e]/95 border border-white/10 rounded-xl p-5 sm:p-7 md:p-8 font-mono text-sm shadow-2xl"
+            spotlightColor="rgba(229, 169, 59, 0.04)"
+            borderColor="rgba(229, 169, 59, 0.25)"
+            className="w-full bg-[#0e0e11] border border-white/[0.07] border-t-white/[0.15] rounded-xl p-5 sm:p-7 md:p-8 font-mono text-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_16px_36px_-12px_rgba(0,0,0,0.6)]"
         >
             {/* Terminal Window Chrome / Header */}
-            <div className="flex items-center justify-between pb-4 mb-5 border-b border-white/10">
+            <div className="flex items-center justify-between pb-4 mb-5 border-b border-white/[0.07]">
                 {/* Wayland / Hyprland Window Buttons */}
                 <div className="flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full bg-[#ff5f56]/90 transition-transform duration-200 hover:scale-125" />
                     <span className="w-3 h-3 rounded-full bg-[#ffbd2e]/90 transition-transform duration-200 hover:scale-125" />
                     <span className="w-3 h-3 rounded-full bg-[#27c93f]/90 transition-transform duration-200 hover:scale-125" />
-                    <span className="ml-3 hidden sm:inline-flex items-center gap-1.5 text-xs text-white/40 font-mono">
-                        <Terminal size={13} className="text-emerald-400/80" />
+                    <span className="ml-3 hidden sm:inline-flex items-center gap-1.5 text-xs text-zinc-400 font-mono">
+                        <Terminal size={13} className="text-amber-400/80" />
                         archlinux : wayland-session [hyprland]
                     </span>
                 </div>
@@ -86,40 +86,40 @@ export const FastfetchTerminal: React.FC = () => {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white/70 hover:text-white transition-all cursor-pointer"
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs text-zinc-300 hover:text-white transition-all cursor-pointer"
                         title="Copy fastfetch specs"
                         aria-label="Copy fastfetch specs"
                     >
                         {copied ? (
                             <>
-                                <Check size={12} className="text-emerald-400" />
-                                <span className="text-emerald-400">Copied!</span>
+                                <Check size={12} className="text-amber-400" />
+                                <span className="text-amber-400">Copied!</span>
                             </>
                         ) : (
                             <>
-                                <Copy size={12} className="text-white/60" />
+                                <Copy size={12} className="text-zinc-400" />
                                 <span>Copy Specs</span>
                             </>
                         )}
                     </button>
-                    <span className="text-xs text-white/30 hidden md:inline font-mono">
+                    <span className="text-xs text-zinc-500 hidden md:inline font-mono">
                         UTF-8
                     </span>
                 </div>
             </div>
 
             {/* Prompt Line */}
-            <div className="flex items-center gap-2 mb-6 text-sm text-white/80">
-                <span className="text-emerald-400 font-bold select-none">❯</span>
-                <span className="text-white font-medium">fastfetch --logo arch</span>
-                <span className="inline-block w-2 h-4 bg-emerald-400 animate-pulse ml-0.5" />
+            <div className="flex items-center gap-2 mb-6 text-sm text-zinc-300">
+                <span className="text-amber-400 font-bold select-none">❯</span>
+                <span className="text-zinc-100 font-medium">fastfetch --logo arch</span>
+                <span className="inline-block w-2 h-4 bg-amber-400 animate-pulse ml-0.5" />
             </div>
 
             {/* Two-Column Fastfetch Layout */}
             <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center min-w-0">
                 {/* Left Column: Glowing Arch ASCII Logo */}
                 <div className="flex justify-center md:justify-start overflow-x-auto min-w-0 py-2">
-                    <pre className="text-emerald-400/90 leading-tight select-none font-mono text-[11px] sm:text-xs md:text-sm tracking-tighter sm:tracking-normal drop-shadow-[0_0_14px_rgba(52,211,153,0.3)]">
+                    <pre className="text-cyan-400/90 leading-tight select-none font-mono text-[11px] sm:text-xs md:text-sm tracking-tighter sm:tracking-normal drop-shadow-[0_0_14px_rgba(125,211,252,0.25)]">
                         {ASCII_ART}
                     </pre>
                 </div>
@@ -128,10 +128,10 @@ export const FastfetchTerminal: React.FC = () => {
                 <div className="space-y-2 min-w-0">
                     {/* Header: User & Host */}
                     <div>
-                        <div className="text-base sm:text-lg font-semibold tracking-wide text-emerald-400">
-                            sudo-ashish<span className="text-white/60">@</span>archlinux
+                        <div className="text-base sm:text-lg font-semibold tracking-wide text-amber-400">
+                            sudo-ashish<span className="text-zinc-500">@</span>archlinux
                         </div>
-                        <div className="text-white/20 select-none text-xs sm:text-sm font-mono overflow-hidden">
+                        <div className="text-zinc-700 select-none text-xs sm:text-sm font-mono overflow-hidden">
                             -----------------------------------------
                         </div>
                     </div>
@@ -143,24 +143,24 @@ export const FastfetchTerminal: React.FC = () => {
                                 key={spec.label}
                                 className="grid grid-cols-[100px_1fr] sm:grid-cols-[120px_1fr] gap-2 items-baseline py-0.5 hover:bg-white/[0.03] rounded px-1 transition-colors group/row"
                             >
-                                <span className="text-cyan-400/90 font-medium select-none flex items-center justify-between pr-2">
+                                <span className="text-zinc-400 font-medium select-none flex items-center justify-between pr-2 font-mono">
                                     <span>{spec.label}</span>
-                                    <span className="text-white/20">:</span>
+                                    <span className="text-zinc-600">:</span>
                                 </span>
 
-                                <span className="min-w-0 break-words text-white/85">
+                                <span className="min-w-0 break-words text-zinc-200">
                                     {spec.isLink && spec.href ? (
                                         <a
                                             href={spec.href}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className={`inline-flex items-center gap-1.5 ${spec.highlight || 'text-emerald-400'}`}
+                                            className={`inline-flex items-center gap-1.5 ${spec.highlight || 'text-amber-400'}`}
                                         >
                                             <span>{spec.value}</span>
                                             <ExternalLink size={12} className="inline opacity-80" />
                                         </a>
                                     ) : (
-                                        <span className={spec.highlight || 'text-white/90'}>
+                                        <span className={spec.highlight || 'text-zinc-200'}>
                                             {spec.value}
                                         </span>
                                     )}
@@ -170,8 +170,8 @@ export const FastfetchTerminal: React.FC = () => {
                     </div>
 
                     {/* Classic 8-Block Color Palettes */}
-                    <div className="pt-4 border-t border-white/10">
-                        <div className="text-[11px] text-white/40 mb-2 select-none uppercase tracking-wider font-mono">
+                    <div className="pt-4 border-t border-white/[0.07]">
+                        <div className="text-[11px] text-zinc-500 mb-2 select-none uppercase tracking-wider font-mono">
                             Terminal Palette
                         </div>
                         <div className="space-y-1.5">

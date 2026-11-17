@@ -3,25 +3,27 @@
 @tailwind utilities;
 
 :root {
-  /* Default (Dark / Deep Space) */
-  --bg-primary: #08080a;
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --dock-bg: rgba(12, 12, 14, 0.85);
-  --selection: rgba(52, 211, 153, 0.25);
+  /* Default: Deep Obsidian Machined */
+  --bg-primary: #09090b;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --surface-bg: #0e0e11;
+  --surface-border: rgba(255, 255, 255, 0.07);
+  --surface-border-top: rgba(255, 255, 255, 0.15);
+  --dock-bg: rgba(14, 14, 17, 0.85);
+  --selection: rgba(229, 169, 59, 0.25);
 }
 
 [data-theme="gruvbox"] {
-  /* Gruvbox Light (Retro Paper) */
-  --bg-primary: #ebdbb2;
-  --text-primary: #3c3836;
-  --text-secondary: rgba(60, 56, 54, 0.6);
-  --glass-bg: rgba(60, 56, 54, 0.03);
-  --glass-border: rgba(60, 56, 54, 0.08);
-  --dock-bg: rgba(213, 196, 161, 0.85);
-  --selection: rgba(214, 93, 14, 0.25);
+  /* Gruvbox Machined Dark */
+  --bg-primary: #1d2021;
+  --text-primary: #ebdbb2;
+  --text-secondary: #a89984;
+  --surface-bg: #282828;
+  --surface-border: rgba(235, 219, 178, 0.1);
+  --surface-border-top: rgba(235, 219, 178, 0.2);
+  --dock-bg: rgba(40, 40, 40, 0.9);
+  --selection: rgba(215, 153, 33, 0.35);
 }
 
 @layer base {
@@ -50,10 +52,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--glass-border);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.25);
 }

@@ -5,87 +5,100 @@ import { SpotlightCard } from "../UI/SpotlightCard";
 
 export const Contact: React.FC = () => {
     return (
-        <Section id="contact" className="w-full max-w-6xl mx-auto px-6 md:px-12 box-border min-w-0 min-h-[60vh] flex flex-col justify-between">
-            <div className="max-w-3xl min-w-0">
-                <div className="flex items-center gap-2 mb-3">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-xs font-mono uppercase tracking-widest text-emerald-400/90">
-                        Get In Touch
+        <Section id="contact" className="w-full max-w-6xl mx-auto px-6 md:px-12 box-border min-w-0 py-24 flex flex-col justify-between">
+            {/* Asymmetric Editorial Section Header */}
+            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between pb-6 mb-10 border-b border-white/[0.07] min-w-0">
+                <div>
+                    <span className="text-xs font-mono tracking-widest text-amber-400/90 font-medium uppercase">
+                        03 // CONTACT & COLLABORATION
                     </span>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-zinc-100 tracking-tight mt-2">
+                        Let's Build Something.
+                    </h2>
                 </div>
+                <span className="text-xs font-mono text-zinc-500 mt-2 sm:mt-0 uppercase tracking-wider">
+                    Open for collaboration
+                </span>
+            </div>
 
-                <h2 className="text-5xl md:text-7xl font-light text-white tracking-tight mb-6">
-                    Let's Build <br />
-                    <span className="text-white/40">Something.</span>
-                </h2>
-
-                <p className="text-lg md:text-xl text-white/70 mb-10 leading-relaxed font-light">
+            <div className="max-w-2xl min-w-0 mb-12">
+                <p className="text-base sm:text-lg text-zinc-400 leading-relaxed font-light">
                     Interested in Wayland desktop tooling, Linux system architecture, or custom UI engineering?
                     Let's collaborate on high-impact software.
                 </p>
+            </div>
 
-                {/* Contact Cards */}
-                <div className="flex flex-wrap gap-4 items-center">
-                    <a
-                        href="mailto:contact@sudo-ashish.dev"
-                        className="inline-flex"
-                    >
-                        <SpotlightCard
-                            spotlightColor="rgba(52, 211, 153, 0.15)"
-                            borderColor="rgba(52, 211, 153, 0.4)"
-                            className="flex items-center gap-3 px-6 py-3.5 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-transform"
-                        >
-                            <Mail className="text-emerald-400" size={18} />
-                            <span className="text-white font-mono text-sm">Email Me</span>
-                        </SpotlightCard>
-                    </a>
+            {/* Machined Contact Links */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full min-w-0">
+                <a
+                    href="mailto:contact@sudo-ashish.dev"
+                    className="group/link block"
+                >
+                    <SpotlightCard className="p-5 flex flex-col justify-between h-full hover:border-amber-400/40 transition-colors">
+                        <div className="flex items-center justify-between text-zinc-400 group-hover/link:text-amber-400 transition-colors mb-3">
+                            <Mail size={18} />
+                            <ExternalLink size={13} className="opacity-60 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                        </div>
+                        <div>
+                            <div className="text-xs font-mono text-zinc-500 uppercase tracking-wider">Direct Email</div>
+                            <div className="text-sm font-mono text-zinc-200 mt-0.5 group-hover/link:text-amber-300 transition-colors">
+                                contact@sudo-ashish.dev
+                            </div>
+                        </div>
+                    </SpotlightCard>
+                </a>
 
-                    <a
-                        href="https://github.com/sudo-ashish"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex"
-                    >
-                        <SpotlightCard
-                            spotlightColor="rgba(56, 189, 248, 0.15)"
-                            borderColor="rgba(56, 189, 248, 0.4)"
-                            className="flex items-center gap-3 px-6 py-3.5 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-transform"
-                        >
-                            <Github className="text-cyan-400" size={18} />
-                            <span className="text-white font-mono text-sm">GitHub (sudo-ashish)</span>
-                            <ExternalLink size={13} className="text-white/40" />
-                        </SpotlightCard>
-                    </a>
+                <a
+                    href="https://github.com/sudo-ashish"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/link block"
+                >
+                    <SpotlightCard className="p-5 flex flex-col justify-between h-full hover:border-amber-400/40 transition-colors">
+                        <div className="flex items-center justify-between text-zinc-400 group-hover/link:text-cyan-400 transition-colors mb-3">
+                            <Github size={18} />
+                            <ExternalLink size={13} className="opacity-60 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                        </div>
+                        <div>
+                            <div className="text-xs font-mono text-zinc-500 uppercase tracking-wider">GitHub Profile</div>
+                            <div className="text-sm font-mono text-zinc-200 mt-0.5 group-hover/link:text-cyan-300 transition-colors">
+                                github.com/sudo-ashish
+                            </div>
+                        </div>
+                    </SpotlightCard>
+                </a>
 
-                    <a
-                        href="https://github.com/sudo-ashish?tab=repositories"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex"
-                    >
-                        <SpotlightCard
-                            spotlightColor="rgba(192, 132, 252, 0.15)"
-                            borderColor="rgba(192, 132, 252, 0.4)"
-                            className="flex items-center gap-3 px-6 py-3.5 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-transform"
-                        >
-                            <Terminal className="text-purple-400" size={18} />
-                            <span className="text-white font-mono text-sm">All Repositories</span>
-                            <ExternalLink size={13} className="text-white/40" />
-                        </SpotlightCard>
-                    </a>
-                </div>
+                <a
+                    href="https://github.com/sudo-ashish?tab=repositories"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/link block"
+                >
+                    <SpotlightCard className="p-5 flex flex-col justify-between h-full hover:border-amber-400/40 transition-colors">
+                        <div className="flex items-center justify-between text-zinc-400 group-hover/link:text-zinc-200 transition-colors mb-3">
+                            <Terminal size={18} />
+                            <ExternalLink size={13} className="opacity-60 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                        </div>
+                        <div>
+                            <div className="text-xs font-mono text-zinc-500 uppercase tracking-wider">Repositories</div>
+                            <div className="text-sm font-mono text-zinc-200 mt-0.5 group-hover/link:text-zinc-100 transition-colors">
+                                View all code ↗
+                            </div>
+                        </div>
+                    </SpotlightCard>
+                </a>
             </div>
 
             {/* Footer with ample padding to guarantee no overlap with the floating dock */}
-            <footer className="mt-24 pt-8 pb-12 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-white/40 font-mono gap-4">
+            <footer className="mt-24 pt-8 pb-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 font-mono gap-4">
                 <div>
-                    © 2026 Ashish (<span className="text-emerald-400/80">sudo-ashish</span>). Built with React & Wayland sensibilities.
+                    © 2026 Ashish (<span className="text-amber-400/90 font-medium">sudo-ashish</span>). Tuned for Wayland compositors.
                 </div>
-                <div className="flex items-center gap-4 text-white/30 text-[11px]">
+                <div className="flex items-center gap-3 text-zinc-600 text-[11px]">
                     <span>Arch Linux</span>
-                    <span>•</span>
+                    <span>·</span>
                     <span>Hyprland</span>
-                    <span>•</span>
+                    <span>·</span>
                     <span>Quickshell</span>
                 </div>
             </footer>
