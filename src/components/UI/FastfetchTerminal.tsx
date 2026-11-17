@@ -1,26 +1,7 @@
 import React, { useState } from 'react';
 import { ExternalLink, Copy, Check, Terminal } from 'lucide-react';
 import { SpotlightCard } from './SpotlightCard';
-
-const ARCH_ASCII = `                   -\`
-                  .o+\`
-                 \`ooo/
-                \`+oooo:
-               \`+oooooo:
-               -+oooooo+:
-             \`/:-:++oooo+:
-            \`/++++/+++++++:
-           \`/++++++++++++++:
-          \`/+++ooooooooooooo/\`
-         ./ooosssso++osssssso+\`
-        .oossssso-\`\`\`\`/ossssss+\`
-       -osssssso.      :ssssssso.
-      :osssssss/        osssso+++.
-     /ossssssss/        +ssssooo/-
-   \`/ossssso+/:-        -:/+osssso+-
-  \`+sso+:-\`                 \`.-/+oso:
- \`++:.                           \`-/+/
- .\`                                 \`/`;
+import { ASCII_ART } from '../../data/asciiArt';
 
 interface SpecItem {
     label: string;
@@ -139,7 +120,7 @@ export const FastfetchTerminal: React.FC = () => {
                 {/* Left Column: Glowing Arch ASCII Logo */}
                 <div className="flex justify-center md:justify-start overflow-x-auto min-w-0 py-2">
                     <pre className="text-emerald-400/90 leading-tight select-none font-mono text-[11px] sm:text-xs md:text-sm tracking-tighter sm:tracking-normal drop-shadow-[0_0_14px_rgba(52,211,153,0.3)]">
-                        {ARCH_ASCII}
+                        {ASCII_ART}
                     </pre>
                 </div>
 
